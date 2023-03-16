@@ -145,8 +145,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CellManager.cpp" />
     <ClCompile Include="src\Cell.cpp" />
-    <ClCompile Include="src\ConwayCell.cpp" />
     <ClCompile Include="src\Internal\Grid.cpp" />
     <ClCompile Include="src\Internal\Vector2.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -154,7 +154,6 @@
   <ItemGroup>
     <ClInclude Include="include\Cell.h" />
     <ClInclude Include="include\CellManager.h" />
-    <ClInclude Include="include\ConwayCell.h" />
     <ClInclude Include="include\enums\CellStateEnum.h" />
     <ClInclude Include="include\Internal\Grid.h" />
     <ClInclude Include="include\Internal\Vector2.h" />

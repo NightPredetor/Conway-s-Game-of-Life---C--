@@ -1,14 +1,51 @@
 #include "Cell.h"
 #include "CellManager.h"
 
-Cell::Cell(Vector2 position, CellStateEnum newCellState, CellManager<Cell>* cellManagerRef) : position(position), cellState(newCellState), cellManager(cellManagerRef)
+Cell::Cell(Vector2 position, CellStateEnum newCellState, CellManager* cellManagerRef) : position(position), cellState(newCellState), cellManager(cellManagerRef)
 {
-	updatedCellState = CellStateEnum::NONE;
+	updatedCellState = CellStateEnum::Dead;
 }
 
 void Cell::CalculateNewState()
 {
-	// Contains no logic as the base cell will always remain empty.
+	std::vector<Cell*> cellList = getCellManager()->GetNeigbourList(this);
+
+	int aliveCellsCount = 0;
+	const int maxCellsCount = getCellState() == CellStateEnum::Alive ? 4 : 3;
+
+	for (Cell const* cell : cellList)
+	{
+		if (cell == nullptr) continue;
+
+		if (cell->getCellState() == CellStateEnum::Alive)
+		{
+			aliveCellsCount++;
+		}
+
+		if (aliveCellsCount == maxCellsCount)
+		{
+			break;
+		}
+	}
+
+	if (getCellState() == CellStateEnum::Alive)
+	{
+		if (aliveCellsCount <= 1 || aliveCellsCount >= 4)
+		{
+			setUpdatedCellState(CellStateEnum::Dead);
+		}
+		else if (aliveCellsCount == 2 || aliveCellsCount == 3)
+		{
+			setUpdatedCellState(CellStateEnum::Alive);
+		}
+	}
+	else
+	{
+		if (aliveCellsCount == 3)
+		{
+			setUpdatedCellState(CellStateEnum::Alive);
+		}
+	}
 }
 
 void Cell::UpdateToNewState()
@@ -26,7 +63,7 @@ std::vector<Cell*> Cell::GetNeighboursList() const
 	return cellManager->GetNeigbourList(this);
 }
 
-CellManager<Cell>* Cell::getCellManager()
+CellManager* Cell::getCellManager()
 {
 	return cellManager;
 }

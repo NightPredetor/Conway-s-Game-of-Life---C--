@@ -1,15 +1,16 @@
 #pragma once
 
 #include <vector>
-#include "CellManager.h"
 #include "Internal/Vector2.h"
 #include "enums/CellStateEnum.h"
+
+class CellManager;
 
 // A base empty cell class that occupies a position in a grid.
 class Cell
 {
 public:
-	explicit Cell(Vector2 position, CellStateEnum newCellState, CellManager<Cell>* cellManagerRef);
+	explicit Cell(Vector2 position, CellStateEnum newCellState, CellManager* cellManagerRef);
 	virtual ~Cell() = default;
 
 	virtual void CalculateNewState();
@@ -22,7 +23,7 @@ public:
 
 protected:
 	std::vector<Cell*> GetNeighboursList() const;
-	CellManager<Cell>* getCellManager();
+	CellManager* getCellManager();
 
 	virtual void setUpdatedCellState(const CellStateEnum newCellState);
 
@@ -30,5 +31,5 @@ private:
 	Vector2 position;
 	CellStateEnum cellState;
 	CellStateEnum updatedCellState;
-	CellManager<Cell>* cellManager;
+	CellManager* cellManager;
 };

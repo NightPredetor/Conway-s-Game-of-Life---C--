@@ -1,13 +1,42 @@
 #include <SFML/Graphics.hpp>
-#include <CellManager.h>
-#include <ConwayCell.h>
 #include <iostream>
+#include <sstream>
+
+#include "Cell.h"
+#include "CellManager.h"
 
 int main()
 {
-	CellManager<ConwayCell> cellManager(10, 10, CellStateEnum::Alive);
+	const int width = 50;
+	const int length = 50;
+	const int cellSize = 10;
+	const sf::Color bgColor(150, 150, 150);
 
-	sf::RenderWindow window(sf::VideoMode(800, 600), "My Window");
+	std::vector<sf::RectangleShape> shapeList(width * length);
+	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
+
+	std::map<Vector2, Cell*> const cellMap = cellManager.getCellDict();
+	if (cellMap.empty())
+	{
+		std::cout << "No cells found!";
+	}
+
+	int i = 0;
+	for (auto it = cellMap.begin(); it != cellMap.end(); ++it)
+	{
+		shapeList[i].setSize(sf::Vector2f(cellSize, cellSize));
+		shapeList[i].setPosition(sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize));
+
+		shapeList[i].setOutlineColor(sf::Color::Black);
+
+		i++;
+	}
+
+	sf::Clock clock;
+	sf::Time timeSinceLastUpdate = sf::Time::Zero;
+	sf::Time updateInterval = sf::seconds(1.0f / 60.0f); // 60 FPS
+
+	sf::RenderWindow window(sf::VideoMode(960, 540), "Conway's Game of Life");
 
 	while (window.isOpen())
 	{
@@ -21,33 +50,35 @@ int main()
 		}
 
 		// clear the window with black color
-		window.clear(sf::Color::Black);
+		window.clear(bgColor);
+
+		sf::Time deltaTime = clock.restart();
+		timeSinceLastUpdate += deltaTime;
+		while (timeSinceLastUpdate > updateInterval)
+		{
+			timeSinceLastUpdate -= updateInterval;
+			std::cout << "FPS: " << static_cast<int>(1.0f / deltaTime.asSeconds()) << "\n";
+		}
 
 		cellManager.UpdateCells();
 
-		std::map<Vector2, ConwayCell*> cellMap = cellManager.getCellDict();
-
-		if (cellMap.empty())
-		{
-			std::cout << "WTF!";
-		}
-
+		i = 0;
 		for (auto it = cellMap.begin(); it != cellMap.end(); ++it)
 		{
-			//std::cout << it->first << ", " << it->second;
-			sf::RectangleShape rectangle(sf::Vector2f(it->first.X + 50, it->first.Y + 50));
-			rectangle.setSize(sf::Vector2f(50.f, 50.f));
-
 			if (it->second->getCellState() == CellStateEnum::Alive)
 			{
-				rectangle.setFillColor(sf::Color(250, 150, 100));
+				shapeList[i].setFillColor(sf::Color(250, 250, 250));
+				shapeList[i].setOutlineThickness(1);
 			}
 			else
 			{
-				rectangle.setFillColor(sf::Color(250, 250, 250));
+				shapeList[i].setFillColor(bgColor);
+				shapeList[i].setOutlineThickness(0);
 			}
 
-			window.draw(rectangle);
+			window.draw(shapeList[i]);
+
+			i++;
 		}
 
 		// end the current frame
