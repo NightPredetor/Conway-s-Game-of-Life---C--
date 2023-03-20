@@ -5,39 +5,84 @@
 #include "Cell.h"
 #include "CellManager.h"
 
-int main()
+const sf::Time UPDATE_INTERVAL = sf::seconds(1.0f / 60.0f); // 60 FPS
+const sf::Color BG_COLOR(150, 150, 150); // Set background color.
+
+void SetupCellShapes(std::vector<sf::RectangleShape>& shapeList, std::map<Vector2, Cell*> const* cellMap, const int width, const int length, const int cellSize)
 {
-	const int width = 50;
-	const int length = 50;
-	const int cellSize = 10;
-	const sf::Color bgColor(150, 150, 150);
-
-	std::vector<sf::RectangleShape> shapeList(width * length);
-	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
-
-	std::map<Vector2, Cell*> const cellMap = cellManager.getCellDict();
-	if (cellMap.empty())
-	{
-		std::cout << "No cells found!";
-	}
+	shapeList = std::vector<sf::RectangleShape>(width * length);
 
 	int i = 0;
-	for (auto it = cellMap.begin(); it != cellMap.end(); ++it)
+	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
 	{
 		shapeList[i].setSize(sf::Vector2f(cellSize, cellSize));
 		shapeList[i].setPosition(sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize));
 
+		shapeList[i].setFillColor(sf::Color(250, 250, 250));
 		shapeList[i].setOutlineColor(sf::Color::Black);
+
+		shapeList[i].setOutlineThickness(1);
 
 		i++;
 	}
+}
 
+void DrawCells(std::vector<sf::RectangleShape> const* shapeList, std::map<Vector2, Cell*> const* cellMap, sf::RenderWindow* window)
+{
+	int i = 0;
+	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
+	{
+		if (it->second->getCellState() == CellStateEnum::Alive)
+		{
+			window->draw(shapeList->at(i));
+		}
+
+		i++;
+	}
+}
+
+void PrintFPS(sf::Clock& clock, sf::Time& timeSinceLastUpdate)
+{
+	sf::Time deltaTime = clock.restart();
+	timeSinceLastUpdate += deltaTime;
+
+	while (timeSinceLastUpdate > UPDATE_INTERVAL)
+	{
+		timeSinceLastUpdate -= UPDATE_INTERVAL;
+		std::cout << "FPS: " << static_cast<int>(1.0f / deltaTime.asSeconds()) << "\n";
+	}
+}
+
+int main()
+{
+	// Set const variables.
+	const int width = 40;
+	const int length = 40;
+	const int cellSize = 10;
+
+	// Create CellManager.
+	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
+
+	// Get cell dictionary.
+	std::map<Vector2, Cell*> const cellMap = cellManager.getCellDict();
+	if (cellMap.empty())
+	{
+		std::cout << "No cells found!";
+		return -1;
+	}
+
+	// Setup the shape list.
+	std::vector<sf::RectangleShape> shapeList;
+	SetupCellShapes(shapeList, &cellMap, width, length, cellSize);
+
+	// Setup clock for FPS.
 	sf::Clock clock;
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
-	sf::Time updateInterval = sf::seconds(1.0f / 60.0f); // 60 FPS
 
+	// Create window.
 	sf::RenderWindow window(sf::VideoMode(960, 540), "Conway's Game of Life");
 
+	// SFML loop.
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -49,39 +94,17 @@ int main()
 			}
 		}
 
-		// clear the window with black color
-		window.clear(bgColor);
+		// Clear the window with BG color.
+		window.clear(BG_COLOR);
 
-		sf::Time deltaTime = clock.restart();
-		timeSinceLastUpdate += deltaTime;
-		while (timeSinceLastUpdate > updateInterval)
-		{
-			timeSinceLastUpdate -= updateInterval;
-			std::cout << "FPS: " << static_cast<int>(1.0f / deltaTime.asSeconds()) << "\n";
-		}
-
+		// Cell logic.
 		cellManager.UpdateCells();
+		DrawCells(&shapeList, &cellMap, &window);
 
-		i = 0;
-		for (auto it = cellMap.begin(); it != cellMap.end(); ++it)
-		{
-			if (it->second->getCellState() == CellStateEnum::Alive)
-			{
-				shapeList[i].setFillColor(sf::Color(250, 250, 250));
-				shapeList[i].setOutlineThickness(1);
-			}
-			else
-			{
-				shapeList[i].setFillColor(bgColor);
-				shapeList[i].setOutlineThickness(0);
-			}
+		// FPS.
+		PrintFPS(clock, timeSinceLastUpdate);
 
-			window.draw(shapeList[i]);
-
-			i++;
-		}
-
-		// end the current frame
+		// End the current frame.
 		window.display();
 	}
 
