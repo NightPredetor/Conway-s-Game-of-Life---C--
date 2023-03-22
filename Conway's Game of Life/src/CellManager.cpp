@@ -7,6 +7,7 @@
 CellManager::CellManager(const int width, const int height, const CellStateEnum defaultState)
 {
 	CreateCells(width, height, defaultState);
+	SetupCellNeighbours();
 }
 
 void CellManager::UpdateCells() const
@@ -71,5 +72,13 @@ void CellManager::CreateCells(const int width, const int height, const CellState
 		}
 
 		cellDict[position] = new Cell(position, (CellStateEnum)enumValue, this);
+	}
+}
+
+void CellManager::SetupCellNeighbours() const
+{
+	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
+	{
+		it->second->SetupNeighbourCellList();
 	}
 }

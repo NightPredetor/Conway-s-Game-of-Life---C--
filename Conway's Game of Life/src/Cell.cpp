@@ -4,15 +4,14 @@
 Cell::Cell(Vector2 position, CellStateEnum newCellState, CellManager* cellManagerRef) : position(position), cellState(newCellState), cellManager(cellManagerRef)
 {
 	updatedCellState = CellStateEnum::Dead;
+	neighbourCellList = cellManager->GetNeigbourList(this);
 }
 
 void Cell::CalculateNewState()
 {
-	std::vector<Cell*> cellList = getCellManager()->GetNeigbourList(this);
-
 	int aliveCellsCount = 0;
 
-	for (Cell const* cell : cellList)
+	for (Cell const* cell : neighbourCellList)
 	{
 		if (cell == nullptr) continue;
 
@@ -69,3 +68,8 @@ CellManager* Cell::getCellManager()
 
 void Cell::setUpdatedCellState(const CellStateEnum newCellState) { updatedCellState = newCellState; }
 CellStateEnum Cell::getCellState() const { return cellState; }
+
+void Cell::SetupNeighbourCellList()
+{
+	neighbourCellList = getCellManager()->GetNeigbourList(this);
+}

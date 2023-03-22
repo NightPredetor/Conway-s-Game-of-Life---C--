@@ -25,4 +25,5 @@ private:
 	std::map<Vector2, Cell*> cellDict;
 
 	void CreateCells(const int width, const int height, const CellStateEnum defaultState);
+	void SetupCellNeighbours() const;
 };

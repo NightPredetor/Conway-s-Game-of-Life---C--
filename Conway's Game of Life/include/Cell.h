@@ -20,6 +20,7 @@ public:
 	virtual Vector2 getPosition() const;
 
 	virtual CellStateEnum getCellState() const;
+	void SetupNeighbourCellList();
 
 protected:
 	std::vector<Cell*> GetNeighboursList() const;
@@ -32,4 +33,6 @@ private:
 	CellStateEnum cellState;
 	CellStateEnum updatedCellState;
 	CellManager* cellManager;
+
+	std::vector<Cell*> neighbourCellList;
 };
