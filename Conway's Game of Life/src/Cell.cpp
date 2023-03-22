@@ -15,11 +15,14 @@ void Cell::CalculateNewState()
 	{
 		if (cell == nullptr) continue;
 
+		// Get the amount of alive cells.
 		if (cell->getCellState() == CellStateEnum::Alive)
 		{
 			aliveCellsCount++;
 		}
 
+		// No cell can live if they have more than 4 cell.
+		// So break out if alive cell count is 4.
 		if (aliveCellsCount == 4)
 		{
 			break;
@@ -28,7 +31,7 @@ void Cell::CalculateNewState()
 
 	if (getCellState() == CellStateEnum::Alive)
 	{
-		if (aliveCellsCount <= 1 || aliveCellsCount >= 4)
+		if (aliveCellsCount <= 1 || aliveCellsCount == 4)
 		{
 			setUpdatedCellState(CellStateEnum::Dead);
 		}
