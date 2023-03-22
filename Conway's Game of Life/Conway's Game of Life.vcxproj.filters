@@ -30,6 +30,9 @@
     <ClCompile Include="src\CellManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Internal\FPS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\enums\CellStateEnum.h">
@@ -47,5 +50,11 @@
     <ClInclude Include="include\CellManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Internal\FPS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Resources\Font\arial.ttf" />
   </ItemGroup>
 </Project>

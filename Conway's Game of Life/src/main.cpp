@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <sstream>
 
 #include "Cell.h"
 #include "CellManager.h"
+#include "Internal/FPS.h"
 
 const sf::Time UPDATE_INTERVAL = sf::seconds(1.0f / 60.0f); // 60 FPS
 const sf::Color BG_COLOR(150, 150, 150); // Set background color.
@@ -41,18 +41,6 @@ void DrawCells(std::vector<sf::RectangleShape> const* shapeList, std::map<Vector
 	}
 }
 
-void PrintFPS(sf::Clock& clock, sf::Time& timeSinceLastUpdate)
-{
-	sf::Time deltaTime = clock.restart();
-	timeSinceLastUpdate += deltaTime;
-
-	while (timeSinceLastUpdate > UPDATE_INTERVAL)
-	{
-		timeSinceLastUpdate -= UPDATE_INTERVAL;
-		std::cout << "FPS: " << static_cast<int>(1.0f / deltaTime.asSeconds()) << "\n";
-	}
-}
-
 int main()
 {
 	// Set const variables.
@@ -76,11 +64,11 @@ int main()
 	SetupCellShapes(shapeList, &cellMap, width, length, cellSize);
 
 	// Setup clock for FPS.
-	sf::Clock clock;
-	sf::Time timeSinceLastUpdate = sf::Time::Zero;
+	FPS fpsHandler;
 
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(960, 540), "Conway's Game of Life");
+	window.setFramerateLimit(60);
 
 	// SFML loop.
 	while (window.isOpen())
@@ -102,7 +90,8 @@ int main()
 		DrawCells(&shapeList, &cellMap, &window);
 
 		// FPS.
-		PrintFPS(clock, timeSinceLastUpdate);
+		fpsHandler.Update();
+		window.draw(fpsHandler.getFpsText());
 
 		// End the current frame.
 		window.display();
