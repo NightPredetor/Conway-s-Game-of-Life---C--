@@ -11,14 +11,14 @@ CellManager::CellManager(const int width, const int height, const CellStateEnum 
 
 void CellManager::UpdateCells() const
 {
-	for (auto cellData : cellDict)
+	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
 	{
-		cellData.second->CalculateNewState();
+		it->second->CalculateNewState();
 	}
 
-	for (auto cellData : cellDict)
+	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
 	{
-		cellData.second->UpdateToNewState();
+		it->second->UpdateToNewState();
 	}
 }
 
