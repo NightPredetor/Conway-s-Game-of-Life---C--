@@ -44,9 +44,13 @@ void DrawCells(std::vector<sf::RectangleShape> const* shapeList, std::map<Vector
 int main()
 {
 	// Set const variables.
-	const int width = 40;
-	const int length = 40;
-	const int cellSize = 10;
+	const int width = 100;
+	const int length = 100;
+	const int cellSize = 5;
+
+	// Create a background for the cell area.
+	sf::RectangleShape frameShape(sf::Vector2f(width * cellSize, length * cellSize));
+	frameShape.setFillColor(BG_COLOR);
 
 	// Create CellManager.
 	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
@@ -82,8 +86,11 @@ int main()
 			}
 		}
 
-		// Clear the window with BG color.
-		window.clear(BG_COLOR);
+		// Clear the window with black color.
+		window.clear(sf::Color::Black);
+
+		// Render cell area.
+		window.draw(frameShape);
 
 		// Cell logic.
 		cellManager.UpdateCells();
