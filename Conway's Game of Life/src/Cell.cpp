@@ -11,7 +11,6 @@ void Cell::CalculateNewState()
 	std::vector<Cell*> cellList = getCellManager()->GetNeigbourList(this);
 
 	int aliveCellsCount = 0;
-	const int maxCellsCount = getCellState() == CellStateEnum::Alive ? 4 : 3;
 
 	for (Cell const* cell : cellList)
 	{
@@ -22,7 +21,7 @@ void Cell::CalculateNewState()
 			aliveCellsCount++;
 		}
 
-		if (aliveCellsCount == maxCellsCount)
+		if (aliveCellsCount == 4)
 		{
 			break;
 		}
