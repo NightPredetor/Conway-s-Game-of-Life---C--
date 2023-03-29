@@ -47,10 +47,7 @@ int main()
 	const int width = 100;
 	const int length = 100;
 	const int cellSize = 5;
-
-	// Create a background for the cell area.
-	sf::RectangleShape frameShape(sf::Vector2f(width * cellSize, length * cellSize));
-	frameShape.setFillColor(BG_COLOR);
+	const int extraWidth = 200;
 
 	// Create CellManager.
 	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
@@ -69,10 +66,12 @@ int main()
 
 	// Setup clock for FPS.
 	FPS fpsHandler;
+	fpsHandler.SetFpsTextPosition(width * cellSize + 50, 0);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(960, 540), "Conway's Game of Life");
+	sf::RenderWindow window(sf::VideoMode(width * cellSize + extraWidth, length * cellSize), "Conway's Game of Life");
 	window.setFramerateLimit(60);
+	window.hasFocus();
 
 	// SFML loop.
 	while (window.isOpen())
@@ -86,11 +85,8 @@ int main()
 			}
 		}
 
-		// Clear the window with black color.
-		window.clear(sf::Color::Black);
-
-		// Render cell area.
-		window.draw(frameShape);
+		// Clear the window with BG color.
+		window.clear(BG_COLOR);
 
 		// Cell logic.
 		cellManager.UpdateCells();

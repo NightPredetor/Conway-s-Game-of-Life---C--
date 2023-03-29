@@ -20,9 +20,9 @@ FPS::FPS()
 	// Set outline.
 	fpsText.setOutlineThickness(1);
 	fpsText.setOutlineColor(sf::Color::Black);
-	
+
 	// Set position.
-	fpsText.setPosition(500, 0);
+	SetFpsTextPosition(0, 0);
 
 	clock = sf::Clock::Clock();
 	previousTime = clock.getElapsedTime();
@@ -46,6 +46,11 @@ void FPS::Update()
 	previousTime = currentTime;
 
 	SetFpsText(fps);
+}
+
+void FPS::SetFpsTextPosition(const float x, const float y)
+{
+	fpsText.setPosition(x, y);
 }
 
 void FPS::SetFpsText(const float fps)

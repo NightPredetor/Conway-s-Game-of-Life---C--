@@ -20,4 +20,5 @@ private:
 
 public:
 	void Update();
+	void SetFpsTextPosition(const float x, const float y);
 };
