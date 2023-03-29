@@ -34,32 +34,20 @@ void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> cons
 	}
 }
 
-sf::VertexArray DrawCells(sf::VertexArray const* vertexArray, std::map<Vector2, Cell*> const* cellMap)
+sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vector2, Cell*> const* cellMap)
 {
-	int alive = 0;
-	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
-	{
-		if (it->second->getCellState() == CellStateEnum::Alive)
-		{
-			alive++;
-		}
-	}
-
 	// Setup the vertex buffer for drawing all the alive cells.
-	sf::VertexArray aliveVertexArray(sf::Quads, alive * 4);
+	sf::VertexArray aliveVertexArray(sf::Quads);
 
 	int vertexPoint = 0;
-	int aliveVertexPoint = 0;
-	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
-	{		
-		if (it->second->getCellState() == CellStateEnum::Alive)
+	for (const auto& data : *cellMap)
+	{
+		if (data.second->getCellState() == CellStateEnum::Alive)
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				aliveVertexArray[aliveVertexPoint + i] = (*vertexArray)[vertexPoint + i];
+				aliveVertexArray.append((*vertexArray)[vertexPoint + i]);
 			}
-
-			aliveVertexPoint += 4;
 		}
 
 		vertexPoint += 4;
@@ -117,7 +105,7 @@ int main()
 
 		// Cell logic.
 		cellManager.UpdateCells();
-		window.draw(DrawCells(&vertexArray, &cellMap));
+		window.draw(GetCellsForDraw(&vertexArray, &cellMap));
 
 		// FPS.
 		fpsHandler.Update();
