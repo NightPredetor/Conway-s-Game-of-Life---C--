@@ -5,49 +5,76 @@
 #include "CellManager.h"
 #include "Internal/FPS.h"
 
-const sf::Time UPDATE_INTERVAL = sf::seconds(1.0f / 60.0f); // 60 FPS
-const sf::Color BG_COLOR(150, 150, 150); // Set background color.
-
-void SetupCellShapes(std::vector<sf::RectangleShape>& shapeList, std::map<Vector2, Cell*> const* cellMap, const int width, const int length, const int cellSize)
+void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> const* cellMap, const int cellSize)
 {
-	shapeList = std::vector<sf::RectangleShape>(width * length);
+	// Setup the vertex buffer for drawing all the cells.
+	vertexArray = sf::VertexArray(sf::Quads, cellMap->size() * 4);
 
 	int i = 0;
+	sf::Vector2f point;
 	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
 	{
-		shapeList[i].setSize(sf::Vector2f(cellSize, cellSize));
-		shapeList[i].setPosition(sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize));
+		// Top left point.
+		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize);
+		vertexArray[i].position = point;
 
-		shapeList[i].setFillColor(sf::Color(250, 250, 250));
-		shapeList[i].setOutlineColor(sf::Color::Black);
+		// Top right point.
+		point = sf::Vector2f(it->first.X * cellSize + cellSize, it->first.Y * cellSize);
+		vertexArray[i + 1].position = point;
 
-		shapeList[i].setOutlineThickness(1);
+		// Bottom right point.
+		point = sf::Vector2f(it->first.X * cellSize + cellSize, it->first.Y * cellSize + cellSize);
+		vertexArray[i + 2].position = point;
 
-		i++;
+		// Bottom left point.
+		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize + cellSize);
+		vertexArray[i + 3].position = point;
+
+		i += 4;
 	}
 }
 
-void DrawCells(std::vector<sf::RectangleShape> const* shapeList, std::map<Vector2, Cell*> const* cellMap, sf::RenderWindow* window)
+sf::VertexArray DrawCells(sf::VertexArray const* vertexArray, std::map<Vector2, Cell*> const* cellMap)
 {
-	int i = 0;
+	int alive = 0;
 	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
 	{
 		if (it->second->getCellState() == CellStateEnum::Alive)
 		{
-			window->draw(shapeList->at(i));
+			alive++;
+		}
+	}
+
+	// Setup the vertex buffer for drawing all the alive cells.
+	sf::VertexArray aliveVertexArray(sf::Quads, alive * 4);
+
+	int vertexPoint = 0;
+	int aliveVertexPoint = 0;
+	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
+	{		
+		if (it->second->getCellState() == CellStateEnum::Alive)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				aliveVertexArray[aliveVertexPoint + i] = (*vertexArray)[vertexPoint + i];
+			}
+
+			aliveVertexPoint += 4;
 		}
 
-		i++;
+		vertexPoint += 4;
 	}
+
+	return aliveVertexArray;
 }
 
 int main()
 {
 	// Set const variables.
-	const int WIDTH = 100;
-	const int LENGTH = 100;
+	const int WIDTH = 200;
+	const int LENGTH = 200;
 	const int CELL_SIZE = 5;
-	const int EXTRA_WIDTH = 200;
+	const sf::Color BG_COLOR(150, 150, 150);
 
 	// Create CellManager.
 	auto const cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
@@ -60,16 +87,16 @@ int main()
 		return -1;
 	}
 
-	// Setup the shape list.
-	std::vector<sf::RectangleShape> shapeList;
-	SetupCellShapes(shapeList, &cellMap, WIDTH, LENGTH, CELL_SIZE);
+	// Setup vertex buffer.
+	sf::VertexArray vertexArray;
+	SetupCellShapes(vertexArray, &cellMap, CELL_SIZE);
 
 	// Setup clock for FPS.
 	FPS fpsHandler;
-	fpsHandler.SetFpsTextPosition(WIDTH * CELL_SIZE + 50, 0);
+	fpsHandler.SetFpsTextPosition(0, 0);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + EXTRA_WIDTH, LENGTH * CELL_SIZE), "Conway's Game of Life");
+	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE, LENGTH * CELL_SIZE), "Conway's Game of Life");
 	window.setFramerateLimit(60);
 	window.hasFocus();
 
@@ -90,7 +117,7 @@ int main()
 
 		// Cell logic.
 		cellManager.UpdateCells();
-		DrawCells(&shapeList, &cellMap, &window);
+		window.draw(DrawCells(&vertexArray, &cellMap));
 
 		// FPS.
 		fpsHandler.Update();
