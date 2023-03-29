@@ -44,13 +44,13 @@ void DrawCells(std::vector<sf::RectangleShape> const* shapeList, std::map<Vector
 int main()
 {
 	// Set const variables.
-	const int width = 100;
-	const int length = 100;
-	const int cellSize = 5;
-	const int extraWidth = 200;
+	const int WIDTH = 100;
+	const int LENGTH = 100;
+	const int CELL_SIZE = 5;
+	const int EXTRA_WIDTH = 200;
 
 	// Create CellManager.
-	auto const cellManager = CellManager(width, length, CellStateEnum::NONE);
+	auto const cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
 
 	// Get cell dictionary.
 	std::map<Vector2, Cell*> const cellMap = cellManager.getCellDict();
@@ -62,14 +62,14 @@ int main()
 
 	// Setup the shape list.
 	std::vector<sf::RectangleShape> shapeList;
-	SetupCellShapes(shapeList, &cellMap, width, length, cellSize);
+	SetupCellShapes(shapeList, &cellMap, WIDTH, LENGTH, CELL_SIZE);
 
 	// Setup clock for FPS.
 	FPS fpsHandler;
-	fpsHandler.SetFpsTextPosition(width * cellSize + 50, 0);
+	fpsHandler.SetFpsTextPosition(WIDTH * CELL_SIZE + 50, 0);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(width * cellSize + extraWidth, length * cellSize), "Conway's Game of Life");
+	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + EXTRA_WIDTH, LENGTH * CELL_SIZE), "Conway's Game of Life");
 	window.setFramerateLimit(60);
 	window.hasFocus();
 
