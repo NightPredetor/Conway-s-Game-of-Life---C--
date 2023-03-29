@@ -12,14 +12,14 @@ CellManager::CellManager(const int width, const int height, const CellStateEnum 
 
 void CellManager::UpdateCells() const
 {
-	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
+	for (const auto& data : cellDict)
 	{
-		it->second->CalculateNewState();
+		data.second->CalculateNewState();
 	}
 
-	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
+	for (const auto& data : cellDict)
 	{
-		it->second->UpdateToNewState();
+		data.second->UpdateToNewState();
 	}
 }
 
@@ -77,8 +77,8 @@ void CellManager::CreateCells(const int width, const int height, const CellState
 
 void CellManager::SetupCellNeighbours() const
 {
-	for (auto it = cellDict.begin(); it != cellDict.end(); ++it)
+	for (const auto& data : cellDict)
 	{
-		it->second->SetupNeighbourCellList();
+		data.second->SetupNeighbourCellList();
 	}
 }
