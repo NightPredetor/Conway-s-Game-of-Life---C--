@@ -8,15 +8,18 @@
 
 void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> const* cellMap, const int cellSize)
 {
+	// Create colors.
+	const sf::Color BORDER_COLOR(20, 20, 20);
+	const sf::Color CELL_COLOR(230, 230, 230);
+
+	// Calculate border size.
+	const int BORDER_SIZE = roundf(cellSize * 0.1f);
+
 	// Setup the vertex buffer for drawing all the cells.
 	vertexArray = sf::VertexArray(sf::Quads, cellMap->size() * 8);
 
 	int i = 0;
 	sf::Vector2f point;
-
-	// Calculate border size.
-	const int BORDER_SIZE = roundf(cellSize * 0.05f);
-
 	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
 	{
 		// ------------ Draw Cell's Border ------------
@@ -55,7 +58,7 @@ void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> cons
 		// Color the first 4 cells black, and the remaining 4 cells white.
 		for (int j = i; j < i + 8; j++)
 		{
-			vertexArray[j].color = j < i + 4 ? sf::Color::Black : sf::Color::White;
+			vertexArray[j].color = j < i + 4 ? BORDER_COLOR : CELL_COLOR;
 		}
 
 		i += 8;
