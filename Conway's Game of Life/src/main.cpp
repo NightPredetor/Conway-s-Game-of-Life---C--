@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <math.h>
 
 #include "Cell.h"
 #include "CellManager.h"
@@ -8,12 +9,17 @@
 void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> const* cellMap, const int cellSize)
 {
 	// Setup the vertex buffer for drawing all the cells.
-	vertexArray = sf::VertexArray(sf::Quads, cellMap->size() * 4);
+	vertexArray = sf::VertexArray(sf::Quads, cellMap->size() * 8);
 
 	int i = 0;
 	sf::Vector2f point;
+
+	// Calculate border size.
+	const int BORDER_SIZE = roundf(cellSize * 0.05f);
+
 	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
 	{
+		// ------------ Draw Cell's Border ------------
 		// Top left point.
 		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize);
 		vertexArray[i].position = point;
@@ -30,7 +36,29 @@ void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> cons
 		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize + cellSize);
 		vertexArray[i + 3].position = point;
 
-		i += 4;
+		// ------------ Draw Cell ------------
+		point = sf::Vector2f(it->first.X * cellSize + BORDER_SIZE, it->first.Y * cellSize + BORDER_SIZE);
+		vertexArray[i + 4].position = point;
+
+		// Top right point.
+		point = sf::Vector2f(it->first.X * cellSize + cellSize - BORDER_SIZE, it->first.Y * cellSize + BORDER_SIZE);
+		vertexArray[i + 5].position = point;
+
+		// Bottom right point.
+		point = sf::Vector2f(it->first.X * cellSize + cellSize - BORDER_SIZE, it->first.Y * cellSize + cellSize - BORDER_SIZE);
+		vertexArray[i + 6].position = point;
+
+		// Bottom left point.
+		point = sf::Vector2f(it->first.X * cellSize + BORDER_SIZE, it->first.Y * cellSize + cellSize - BORDER_SIZE);
+		vertexArray[i + 7].position = point;
+
+		// Color the first 4 cells black, and the remaining 4 cells white.
+		for (int j = i; j < i + 8; j++)
+		{
+			vertexArray[j].color = j < i + 4 ? sf::Color::Black : sf::Color::White;
+		}
+
+		i += 8;
 	}
 }
 
@@ -44,13 +72,13 @@ sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vec
 	{
 		if (data.second->getCellState() == CellStateEnum::Alive)
 		{
-			for (int i = 0; i < 4; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				aliveVertexArray.append((*vertexArray)[vertexPoint + i]);
 			}
 		}
 
-		vertexPoint += 4;
+		vertexPoint += 8;
 	}
 
 	return aliveVertexArray;
@@ -59,9 +87,9 @@ sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vec
 int main()
 {
 	// Set const variables.
-	const int WIDTH = 200;
-	const int LENGTH = 200;
-	const int CELL_SIZE = 5;
+	const int WIDTH = 100;
+	const int LENGTH = 100;
+	const int CELL_SIZE = 10;
 	const sf::Color BG_COLOR(150, 150, 150);
 
 	// Create CellManager.
