@@ -25,6 +25,35 @@ void CellManager::UpdateCells() const
 
 std::vector<Cell*> CellManager::GetNeigbourList(const Cell* cell)
 {
+	// Edge Connecting -
+	// In case a cell is at the edge of the grid,
+	// this function loops to the other end of the grid to get the cell,
+	// so the simulation can run without any dead end walls.
+	auto getPosition = [=](const int x, const int y)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			Vector2 position;
+			switch (i)
+			{
+				case 1:
+					position = Vector2(0, cell->getPosition().Y + y);
+					break;
+				case 2:
+					position = Vector2(cell->getPosition().X + x, 0);
+					break;
+				default:
+					position = Vector2(cell->getPosition().X + x, cell->getPosition().Y + y);
+					break;
+			}
+
+			if (cellDict.count(position))
+			{
+				return position;
+			}
+		}
+	};
+
 	// Create array for holding cells.
 	std::vector<Cell*> neighbourList;
 
@@ -38,7 +67,8 @@ std::vector<Cell*> CellManager::GetNeigbourList(const Cell* cell)
 			if (x == 0 && y == 0) { continue; }
 
 			// This will give us all the 8 neighboring cells.
-			auto position = Vector2(cell->getPosition().X + x, cell->getPosition().Y + y);
+			Vector2 position = getPosition(x, y);
+
 			if (cellDict.count(position))
 			{
 				neighbourList.push_back(cellDict[position]);
