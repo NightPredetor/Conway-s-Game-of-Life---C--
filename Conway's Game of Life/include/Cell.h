@@ -10,29 +10,24 @@ class CellManager;
 class Cell
 {
 public:
-	explicit Cell(Vector2 position, CellStateEnum newCellState, CellManager* cellManagerRef);
+	explicit Cell(Vector2 position, CellStateEnum newCellState);
 	virtual ~Cell() = default;
 
 	virtual void CalculateNewState();
 	virtual void UpdateToNewState();
 
-	virtual void setPosition(const Vector2 newPosition);
-	virtual Vector2 getPosition() const;
+	virtual void SetupNeighboursList(CellManager* cellManager);
 
+	virtual Vector2 getPosition() const;
 	virtual CellStateEnum getCellState() const;
-	void SetupNeighbourCellList();
 
 protected:
-	std::vector<Cell*> GetNeighboursList() const;
-	CellManager* getCellManager();
-
 	virtual void setUpdatedCellState(const CellStateEnum newCellState);
 
 private:
 	Vector2 position;
 	CellStateEnum cellState;
 	CellStateEnum updatedCellState;
-	CellManager* cellManager;
 
 	std::vector<Cell*> neighbourCellList;
 };

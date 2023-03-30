@@ -1,10 +1,9 @@
 #include "Cell.h"
 #include "CellManager.h"
 
-Cell::Cell(Vector2 position, CellStateEnum newCellState, CellManager* cellManagerRef) : position(position), cellState(newCellState), cellManager(cellManagerRef)
+Cell::Cell(Vector2 position, CellStateEnum newCellState) : position(position), cellState(newCellState)
 {
 	updatedCellState = CellStateEnum::Dead;
-	neighbourCellList = cellManager->GetNeigbourList(this);
 }
 
 void Cell::CalculateNewState()
@@ -54,25 +53,14 @@ void Cell::UpdateToNewState()
 	cellState = updatedCellState;
 }
 
-void Cell::setPosition(const Vector2 newPosition) { position = newPosition; }
+void Cell::SetupNeighboursList(CellManager* cellManager)
+{
+	if (cellManager == nullptr) return;
+
+	neighbourCellList = cellManager->GetNeigbourList(this);
+}
+
 Vector2 Cell::getPosition() const { return position; }
-
-std::vector<Cell*> Cell::GetNeighboursList() const
-{
-	if (cellManager == nullptr) return std::vector<Cell*>(0);
-
-	return cellManager->GetNeigbourList(this);
-}
-
-CellManager* Cell::getCellManager()
-{
-	return cellManager;
-}
 
 void Cell::setUpdatedCellState(const CellStateEnum newCellState) { updatedCellState = newCellState; }
 CellStateEnum Cell::getCellState() const { return cellState; }
-
-void Cell::SetupNeighbourCellList()
-{
-	neighbourCellList = getCellManager()->GetNeigbourList(this);
-}

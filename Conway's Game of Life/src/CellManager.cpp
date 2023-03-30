@@ -71,14 +71,14 @@ void CellManager::CreateCells(const int width, const int height, const CellState
 			enumValue = rand() % 3 + 1;
 		}
 
-		cellDict[position] = new Cell(position, (CellStateEnum)enumValue, this);
+		cellDict[position] = new Cell(position, (CellStateEnum)enumValue);
 	}
 }
 
-void CellManager::SetupCellNeighbours() const
+void CellManager::SetupCellNeighbours()
 {
 	for (const auto& data : cellDict)
 	{
-		data.second->SetupNeighbourCellList();
+		data.second->SetupNeighboursList(this);
 	}
 }
