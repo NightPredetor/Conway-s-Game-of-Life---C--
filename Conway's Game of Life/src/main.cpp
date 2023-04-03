@@ -93,8 +93,10 @@ int main()
 	const int WIDTH = 100;
 	const int LENGTH = 100;
 	const int CELL_SIZE = 10;
-	const int UI_SPACE = 300;
+	const int UI_SPACE = 200;
 	const sf::Color BG_COLOR(150, 150, 150);
+
+	bool pauseSimulation = false;
 
 	// Create CellManager.
 	auto const cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
@@ -119,6 +121,21 @@ int main()
 	FPS fpsHandler;
 	fpsHandler.SetFpsTextPosition(0, 0);
 
+	// Load font.
+	sf::Font font;
+	font.loadFromFile("Resources/Font/arial.ttf");
+
+	// Create pause button.
+	sf::RectangleShape pauseBtn(sf::Vector2f(100, 50));
+	pauseBtn.setPosition(WIDTH * CELL_SIZE + 50, 50);
+	pauseBtn.setFillColor(sf::Color::White);
+
+	// Draw pause label.
+	sf::Text pauseLabel("Pause", font);
+	pauseLabel.setCharacterSize(20);
+	pauseLabel.setFillColor(sf::Color::Black);
+	pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
+
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life");
 	window.setFramerateLimit(60);
@@ -134,6 +151,25 @@ int main()
 			{
 				window.close();
 			}
+			else if (event.type == sf::Event::MouseButtonPressed &&
+					 event.mouseButton.button == sf::Mouse::Left)
+			{
+				if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+				{
+					pauseSimulation = !pauseSimulation;
+
+					if (pauseSimulation)
+					{
+						pauseLabel.setString("Unpause");
+						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 10), 50 + 10);
+					}
+					else
+					{
+						pauseLabel.setString("Pause");
+						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
+					}
+				}
+			}
 		}
 
 		// Clear the window.
@@ -142,9 +178,18 @@ int main()
 		// Draw cell BG.
 		window.draw(cellBackground);
 
-		// Cell logic.
-		cellManager.UpdateCells();
+		if (pauseSimulation == false)
+		{		
+			// Cell state logic.
+			cellManager.UpdateCells();
+		}
+
+		// Cell draw logic.
 		window.draw(GetCellsForDraw(&vertexArray, &cellMap));
+
+		// Draw UI.
+		window.draw(pauseBtn);
+		window.draw(pauseLabel);
 
 		// FPS.
 		fpsHandler.Update();
