@@ -99,10 +99,10 @@ int main()
 	bool pauseSimulation = false;
 
 	// Create CellManager.
-	auto const cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
+	auto cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
 
 	// Get cell dictionary.
-	std::map<Vector2, Cell*> const cellMap = cellManager.getCellDict();
+	std::map<Vector2, Cell*> cellMap = cellManager.getCellDict();
 	if (cellMap.empty())
 	{
 		std::cout << "No cells found!";
@@ -130,11 +130,22 @@ int main()
 	pauseBtn.setPosition(WIDTH * CELL_SIZE + 50, 50);
 	pauseBtn.setFillColor(sf::Color::White);
 
-	// Draw pause label.
+	// Create pause label.
 	sf::Text pauseLabel("Pause", font);
 	pauseLabel.setCharacterSize(20);
 	pauseLabel.setFillColor(sf::Color::Black);
 	pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
+
+	// Create restart button.
+	sf::RectangleShape restartBtn(sf::Vector2f(100, 50));
+	restartBtn.setPosition(WIDTH * CELL_SIZE + 50, 125);
+	restartBtn.setFillColor(sf::Color::White);
+
+	// Create restart label.
+	sf::Text restartLabel("Restart", font);
+	restartLabel.setCharacterSize(20);
+	restartLabel.setFillColor(sf::Color::Black);
+	restartLabel.setPosition(WIDTH * CELL_SIZE + (50 + 15), 125 + 10);
 
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life");
@@ -169,6 +180,11 @@ int main()
 						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
 					}
 				}
+				else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+				{
+					cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
+					cellMap = cellManager.getCellDict();
+				}
 			}
 		}
 
@@ -190,6 +206,8 @@ int main()
 		// Draw UI.
 		window.draw(pauseBtn);
 		window.draw(pauseLabel);
+		window.draw(restartBtn);
+		window.draw(restartLabel);
 
 		// FPS.
 		fpsHandler.Update();
