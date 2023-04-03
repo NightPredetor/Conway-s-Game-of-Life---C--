@@ -120,7 +120,7 @@ int main()
 
 	// Setup clock for FPS.
 	FPS fpsHandler;
-	fpsHandler.SetFpsTextPosition(0, 0);
+	fpsHandler.SetFpsTextPosition(WIDTH * CELL_SIZE + 60, 10);
 
 	// Load font.
 	sf::Font font;

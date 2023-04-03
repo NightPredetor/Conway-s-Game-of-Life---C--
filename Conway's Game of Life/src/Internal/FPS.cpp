@@ -12,7 +12,7 @@ FPS::FPS()
 
 	// Set font and size.
 	fpsText.setFont(font);
-	fpsText.setCharacterSize(25);
+	fpsText.setCharacterSize(20);
 
 	// Set color.
 	fpsText.setFillColor(sf::Color::White);
