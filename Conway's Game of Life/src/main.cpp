@@ -97,6 +97,7 @@ int main()
 	const sf::Color BG_COLOR(150, 150, 150);
 
 	bool pauseSimulation = false;
+	int generationElapsed = 0;
 
 	// Create CellManager.
 	auto cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
@@ -147,6 +148,13 @@ int main()
 	restartLabel.setFillColor(sf::Color::Black);
 	restartLabel.setPosition(WIDTH * CELL_SIZE + (50 + 15), 125 + 10);
 
+	// Create generation label.
+	sf::Text generationLabel;
+	generationLabel.setFont(font);
+	generationLabel.setCharacterSize(20);
+	generationLabel.setFillColor(sf::Color::White);
+	generationLabel.setPosition(WIDTH * CELL_SIZE + 40, 200 + 10);
+
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life");
 	window.setFramerateLimit(60);
@@ -182,6 +190,8 @@ int main()
 				}
 				else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 				{
+					generationElapsed = 0;
+
 					cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
 					cellMap = cellManager.getCellDict();
 				}
@@ -195,7 +205,10 @@ int main()
 		window.draw(cellBackground);
 
 		if (pauseSimulation == false)
-		{		
+		{
+			generationElapsed += 1;
+			generationLabel.setString("Generations:\n" + std::to_string(generationElapsed));
+
 			// Cell state logic.
 			cellManager.UpdateCells();
 		}
@@ -208,6 +221,7 @@ int main()
 		window.draw(pauseLabel);
 		window.draw(restartBtn);
 		window.draw(restartLabel);
+		window.draw(generationLabel);
 
 		// FPS.
 		fpsHandler.Update();
