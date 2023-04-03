@@ -93,6 +93,7 @@ int main()
 	const int WIDTH = 100;
 	const int LENGTH = 100;
 	const int CELL_SIZE = 10;
+	const int UI_SPACE = 300;
 	const sf::Color BG_COLOR(150, 150, 150);
 
 	// Create CellManager.
@@ -110,12 +111,16 @@ int main()
 	sf::VertexArray vertexArray;
 	SetupCellShapes(vertexArray, &cellMap, CELL_SIZE);
 
+	// Cell Background rect.
+	sf::RectangleShape cellBackground(sf::Vector2f(WIDTH * CELL_SIZE, LENGTH * CELL_SIZE));
+	cellBackground.setFillColor(BG_COLOR);
+
 	// Setup clock for FPS.
 	FPS fpsHandler;
 	fpsHandler.SetFpsTextPosition(0, 0);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE, LENGTH * CELL_SIZE), "Conway's Game of Life");
+	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life");
 	window.setFramerateLimit(60);
 	window.hasFocus();
 
@@ -131,8 +136,11 @@ int main()
 			}
 		}
 
-		// Clear the window with BG color.
-		window.clear(BG_COLOR);
+		// Clear the window.
+		window.clear(sf::Color::Black);
+
+		// Draw cell BG.
+		window.draw(cellBackground);
 
 		// Cell logic.
 		cellManager.UpdateCells();
