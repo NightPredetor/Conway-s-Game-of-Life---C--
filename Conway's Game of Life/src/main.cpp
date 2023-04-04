@@ -87,6 +87,24 @@ sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vec
 	return aliveVertexArray;
 }
 
+void UpdatePauseBtn(sf::RectangleShape& btn, sf::Text& label, const bool isSimulationPaused, const int offset)
+{
+	if (isSimulationPaused)
+	{
+		btn.setPosition(offset + (25 + 10), 50);
+
+		label.setString("Unpause");
+		label.setPosition(offset + (35 + 10), 50 + 10);
+	}
+	else
+	{
+		btn.setPosition(offset + 50, 50);
+
+		label.setString("Pause");
+		label.setPosition(offset + (50 + 20), 50 + 10);
+	}
+}
+
 int main()
 {
 	// Set const variables.
@@ -188,21 +206,7 @@ int main()
 				if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 				{
 					pauseSimulation = !pauseSimulation;
-
-					if (pauseSimulation)
-					{
-						pauseBtn.setPosition(WIDTH * CELL_SIZE + (25 + 10), 50);
-
-						pauseLabel.setString("Unpause");
-						pauseLabel.setPosition(WIDTH * CELL_SIZE + (35 + 10), 50 + 10);
-					}
-					else
-					{
-						pauseBtn.setPosition(WIDTH * CELL_SIZE + 50, 50);
-
-						pauseLabel.setString("Pause");
-						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
-					}
+					UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
 				}
 				else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 				{
@@ -212,6 +216,9 @@ int main()
 				else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 				{
 					generationElapsed = 0;
+					step = false;
+					pauseSimulation = false;
+					UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
 
 					cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
 					cellMap = cellManager.getCellDict();
