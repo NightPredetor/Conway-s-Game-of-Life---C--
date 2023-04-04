@@ -96,6 +96,7 @@ int main()
 	const int UI_SPACE = 200;
 	const sf::Color BG_COLOR(150, 150, 150);
 
+	bool step = false;
 	bool pauseSimulation = false;
 	int generationElapsed = 0;
 
@@ -136,6 +137,17 @@ int main()
 	pauseLabel.setCharacterSize(20);
 	pauseLabel.setFillColor(sf::Color::Black);
 	pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
+
+	// Create step button.
+	sf::RectangleShape stepBtn(sf::Vector2f(20, 50));
+	stepBtn.setPosition(WIDTH * CELL_SIZE + 145, 50);
+	stepBtn.setFillColor(sf::Color::White);
+
+	// Create step label.
+	sf::Text stepLabel("+", font);
+	stepLabel.setCharacterSize(20);
+	stepLabel.setFillColor(sf::Color::Black);
+	stepLabel.setPosition(WIDTH * CELL_SIZE + 150, 60);
 
 	// Create restart button.
 	sf::RectangleShape restartBtn(sf::Vector2f(100, 50));
@@ -179,14 +191,23 @@ int main()
 
 					if (pauseSimulation)
 					{
+						pauseBtn.setPosition(WIDTH * CELL_SIZE + (25 + 10), 50);
+
 						pauseLabel.setString("Unpause");
-						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 10), 50 + 10);
+						pauseLabel.setPosition(WIDTH * CELL_SIZE + (35 + 10), 50 + 10);
 					}
 					else
 					{
+						pauseBtn.setPosition(WIDTH * CELL_SIZE + 50, 50);
+
 						pauseLabel.setString("Pause");
 						pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
 					}
+				}
+				else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+				{
+					step = true;
+					pauseSimulation = false;
 				}
 				else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 				{
@@ -212,6 +233,11 @@ int main()
 			// Cell state logic.
 			cellManager.UpdateCells();
 		}
+		else
+		{
+			window.draw(stepBtn);
+			window.draw(stepLabel);
+		}
 
 		// Cell draw logic.
 		window.draw(GetCellsForDraw(&vertexArray, &cellMap));
@@ -229,6 +255,12 @@ int main()
 
 		// End the current frame.
 		window.display();
+
+		if (step == true)
+		{
+			step = false;
+			pauseSimulation = true;
+		}
 	}
 
 	return 0;
