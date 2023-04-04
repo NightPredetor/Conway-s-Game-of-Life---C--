@@ -186,7 +186,7 @@ int main()
 	generationLabel.setPosition(WIDTH * CELL_SIZE + 40, 200 + 10);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life");
+	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life", sf::Style::Close);
 	window.setFramerateLimit(60);
 	window.hasFocus();
 
