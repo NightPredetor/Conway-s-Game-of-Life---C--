@@ -203,25 +203,48 @@ int main()
 			else if (event.type == sf::Event::MouseButtonPressed &&
 					 event.mouseButton.button == sf::Mouse::Left)
 			{
-				if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+				// Cell area logic.
+				if (event.mouseButton.x < WIDTH * CELL_SIZE)
 				{
-					pauseSimulation = !pauseSimulation;
-					UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
-				}
-				else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
-				{
-					step = true;
-					pauseSimulation = false;
-				}
-				else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
-				{
-					generationElapsed = 0;
-					step = false;
-					pauseSimulation = false;
-					UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+					int xPos = event.mouseButton.x / CELL_SIZE;
+					int yPos = event.mouseButton.y / CELL_SIZE;
+					Vector2 cellPos(xPos, yPos);
 
-					cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
-					cellMap = cellManager.getCellDict();
+					if (cellMap.count(cellPos))
+					{
+						if (cellMap[cellPos]->getCellState() == CellStateEnum::Alive)
+						{
+							cellMap[cellPos]->setCellState(CellStateEnum::Dead);
+						}
+						else
+						{
+							cellMap[cellPos]->setCellState(CellStateEnum::Alive);
+						}
+					}
+				}
+				// UI logic.
+				else
+				{
+					if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					{
+						pauseSimulation = !pauseSimulation;
+						UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+					}
+					else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					{
+						step = true;
+						pauseSimulation = false;
+					}
+					else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					{
+						generationElapsed = 0;
+						step = false;
+						pauseSimulation = false;
+						UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+
+						cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
+						cellMap = cellManager.getCellDict();
+					}
 				}
 			}
 		}

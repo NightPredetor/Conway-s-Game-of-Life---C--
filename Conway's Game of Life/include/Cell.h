@@ -19,6 +19,8 @@ public:
 	virtual void SetupNeighboursList(CellManager* cellManager);
 
 	virtual Vector2 getPosition() const;
+
+	virtual void setCellState(const CellStateEnum newState);
 	virtual CellStateEnum getCellState() const;
 
 protected:
@@ -26,8 +28,8 @@ protected:
 
 private:
 	Vector2 position;
-	CellStateEnum cellState;
 	CellStateEnum updatedCellState;
+	CellStateEnum cellState;
 
 	std::vector<Cell*> neighbourCellList;
 };

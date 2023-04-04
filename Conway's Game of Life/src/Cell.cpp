@@ -63,4 +63,10 @@ void Cell::SetupNeighboursList(CellManager* cellManager)
 Vector2 Cell::getPosition() const { return position; }
 
 void Cell::setUpdatedCellState(const CellStateEnum newCellState) { updatedCellState = newCellState; }
+
+void Cell::setCellState(const CellStateEnum newState)
+{
+	cellState = newState;
+}
+
 CellStateEnum Cell::getCellState() const { return cellState; }
