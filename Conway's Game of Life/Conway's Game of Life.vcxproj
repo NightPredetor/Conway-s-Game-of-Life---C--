@@ -145,6 +145,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ButtonManager.cpp" />
     <ClCompile Include="src\CellManager.cpp" />
     <ClCompile Include="src\Cell.cpp" />
     <ClCompile Include="src\Internal\FPS.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ButtonManager.h" />
     <ClInclude Include="include\Cell.h" />
     <ClInclude Include="include\CellManager.h" />
     <ClInclude Include="include\enums\CellStateEnum.h" />

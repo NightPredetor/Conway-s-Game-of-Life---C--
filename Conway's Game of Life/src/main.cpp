@@ -5,6 +5,7 @@
 #include "Cell.h"
 #include "CellManager.h"
 #include "Internal/FPS.h"
+#include "ButtonManager.h"
 
 void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> const* cellMap, const int cellSize)
 {
@@ -87,24 +88,6 @@ sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vec
 	return aliveVertexArray;
 }
 
-void UpdatePauseBtn(sf::RectangleShape& btn, sf::Text& label, const bool isSimulationPaused, const int offset)
-{
-	if (isSimulationPaused)
-	{
-		btn.setPosition(offset + (25 + 10), 50);
-
-		label.setString("Unpause");
-		label.setPosition(offset + (35 + 10), 50 + 10);
-	}
-	else
-	{
-		btn.setPosition(offset + 50, 50);
-
-		label.setString("Pause");
-		label.setPosition(offset + (50 + 20), 50 + 10);
-	}
-}
-
 int main()
 {
 	// Set const variables.
@@ -142,60 +125,31 @@ int main()
 	FPS fpsHandler;
 	fpsHandler.SetFpsTextPosition(WIDTH * CELL_SIZE + 60, 10);
 
-	// Load font.
-	sf::Font font;
-	font.loadFromFile("Resources/Font/arial.ttf");
+	ButtonManager buttonManager(WIDTH, CELL_SIZE);
 
-	// Create pause button.
-	sf::RectangleShape pauseBtn(sf::Vector2f(100, 50));
-	pauseBtn.setPosition(WIDTH * CELL_SIZE + 50, 50);
-	pauseBtn.setFillColor(sf::Color::White);
+	// Setup pause button.
+	sf::RectangleShape pauseBtn;
+	sf::Text pauseLabel;
+	buttonManager.SetupPauseButton(pauseBtn, pauseLabel);
 
-	// Create pause label.
-	sf::Text pauseLabel("Pause", font);
-	pauseLabel.setCharacterSize(20);
-	pauseLabel.setFillColor(sf::Color::Black);
-	pauseLabel.setPosition(WIDTH * CELL_SIZE + (50 + 20), 50 + 10);
+	// Setup step button.
+	sf::RectangleShape stepBtn;
+	sf::Text stepLabel;
+	buttonManager.SetupStepButton(stepBtn, stepLabel);
 
-	// Create step button.
-	sf::RectangleShape stepBtn(sf::Vector2f(20, 50));
-	stepBtn.setPosition(WIDTH * CELL_SIZE + 145, 50);
-	stepBtn.setFillColor(sf::Color::White);
+	// Setup restart button.
+	sf::RectangleShape restartBtn;
+	sf::Text restartLabel;
+	buttonManager.SetupRestartButton(restartBtn, restartLabel);
 
-	// Create step label.
-	sf::Text stepLabel("+", font);
-	stepLabel.setCharacterSize(20);
-	stepLabel.setFillColor(sf::Color::Black);
-	stepLabel.setPosition(WIDTH * CELL_SIZE + 150, 60);
-
-	// Create restart button.
-	sf::RectangleShape restartBtn(sf::Vector2f(100, 50));
-	restartBtn.setPosition(WIDTH * CELL_SIZE + 20, 125);
-	restartBtn.setFillColor(sf::Color::White);
-
-	// Create restart label.
-	sf::Text restartLabel("Restart", font);
-	restartLabel.setCharacterSize(20);
-	restartLabel.setFillColor(sf::Color::Black);
-	restartLabel.setPosition(WIDTH * CELL_SIZE + (20 + 15), 125 + 10);
-
-	// Create step button.
-	sf::RectangleShape clearCheckboxBtn(sf::Vector2f(60, 35));
-	clearCheckboxBtn.setPosition(WIDTH * CELL_SIZE + 130, 130);
-	clearCheckboxBtn.setFillColor(sf::Color::White);
-
-	// Create step label.
-	sf::Text clearCheckboxLabel("Clear:\nFalse", font);
-	clearCheckboxLabel.setCharacterSize(15);
-	clearCheckboxLabel.setFillColor(sf::Color::Black);
-	clearCheckboxLabel.setPosition(WIDTH * CELL_SIZE + 140, 130);
+	// Setup clear button.
+	sf::RectangleShape clearCheckboxBtn;
+	sf::Text clearCheckboxLabel;
+	buttonManager.SetupClearButton(clearCheckboxBtn, clearCheckboxLabel);
 
 	// Create generation label.
 	sf::Text generationLabel;
-	generationLabel.setFont(font);
-	generationLabel.setCharacterSize(20);
-	generationLabel.setFillColor(sf::Color::White);
-	generationLabel.setPosition(WIDTH * CELL_SIZE + 40, 200 + 10);
+	buttonManager.SetupGenerationLabel(generationLabel);
 
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life", sf::Style::Close);
@@ -240,7 +194,7 @@ int main()
 					if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						pauseSimulation = !pauseSimulation;
-						UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+						buttonManager.UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
 					}
 					else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
@@ -253,7 +207,7 @@ int main()
 						step = clearBoard;
 						pauseSimulation = clearBoard;
 						generationLabel.setString("Generations:\n" + std::to_string(generationElapsed));
-						UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+						buttonManager.UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
 
 						cellManager = CellManager(WIDTH, LENGTH, clearBoard ? CellStateEnum::Dead : CellStateEnum::NONE);
 						cellMap = cellManager.getCellDict();
