@@ -115,6 +115,7 @@ int main()
 	const sf::Color BG_COLOR(150, 150, 150);
 
 	bool step = false;
+	bool clearBoard = false;
 	bool pauseSimulation = false;
 	int generationElapsed = 0;
 
@@ -169,14 +170,25 @@ int main()
 
 	// Create restart button.
 	sf::RectangleShape restartBtn(sf::Vector2f(100, 50));
-	restartBtn.setPosition(WIDTH * CELL_SIZE + 50, 125);
+	restartBtn.setPosition(WIDTH * CELL_SIZE + 20, 125);
 	restartBtn.setFillColor(sf::Color::White);
 
 	// Create restart label.
 	sf::Text restartLabel("Restart", font);
 	restartLabel.setCharacterSize(20);
 	restartLabel.setFillColor(sf::Color::Black);
-	restartLabel.setPosition(WIDTH * CELL_SIZE + (50 + 15), 125 + 10);
+	restartLabel.setPosition(WIDTH * CELL_SIZE + (20 + 15), 125 + 10);
+
+	// Create step button.
+	sf::RectangleShape clearCheckboxBtn(sf::Vector2f(60, 35));
+	clearCheckboxBtn.setPosition(WIDTH * CELL_SIZE + 130, 130);
+	clearCheckboxBtn.setFillColor(sf::Color::White);
+
+	// Create step label.
+	sf::Text clearCheckboxLabel("Clear:\nFalse", font);
+	clearCheckboxLabel.setCharacterSize(15);
+	clearCheckboxLabel.setFillColor(sf::Color::Black);
+	clearCheckboxLabel.setPosition(WIDTH * CELL_SIZE + 140, 130);
 
 	// Create generation label.
 	sf::Text generationLabel;
@@ -238,12 +250,19 @@ int main()
 					else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						generationElapsed = 0;
-						step = false;
-						pauseSimulation = false;
+						step = clearBoard;
+						pauseSimulation = clearBoard;
+						generationLabel.setString("Generations:\n" + std::to_string(generationElapsed));
 						UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
 
-						cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
+						cellManager = CellManager(WIDTH, LENGTH, clearBoard ? CellStateEnum::Dead : CellStateEnum::NONE);
 						cellMap = cellManager.getCellDict();
+					}
+					else if (clearCheckboxBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					{
+						clearBoard = !clearBoard;
+						std::string result = clearBoard ? "True" : "False";
+						clearCheckboxLabel.setString("Clear:\n" + result);
 					}
 				}
 			}
@@ -277,6 +296,8 @@ int main()
 		window.draw(pauseLabel);
 		window.draw(restartBtn);
 		window.draw(restartLabel);
+		window.draw(clearCheckboxBtn);
+		window.draw(clearCheckboxLabel);
 		window.draw(generationLabel);
 
 		// FPS.
