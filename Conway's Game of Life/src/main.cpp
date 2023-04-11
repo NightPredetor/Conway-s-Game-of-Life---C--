@@ -127,30 +127,6 @@ int main()
 
 	ButtonManager buttonManager(WIDTH, CELL_SIZE);
 
-	// Setup pause button.
-	sf::RectangleShape pauseBtn;
-	sf::Text pauseLabel;
-	buttonManager.SetupPauseButton(pauseBtn, pauseLabel);
-
-	// Setup step button.
-	sf::RectangleShape stepBtn;
-	sf::Text stepLabel;
-	buttonManager.SetupStepButton(stepBtn, stepLabel);
-
-	// Setup restart button.
-	sf::RectangleShape restartBtn;
-	sf::Text restartLabel;
-	buttonManager.SetupRestartButton(restartBtn, restartLabel);
-
-	// Setup clear button.
-	sf::RectangleShape clearCheckboxBtn;
-	sf::Text clearCheckboxLabel;
-	buttonManager.SetupClearButton(clearCheckboxBtn, clearCheckboxLabel);
-
-	// Create generation label.
-	sf::Text generationLabel;
-	buttonManager.SetupGenerationLabel(generationLabel);
-
 	// Create window.
 	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life", sf::Style::Close);
 	window.setFramerateLimit(60);
@@ -191,32 +167,31 @@ int main()
 				// UI logic.
 				else
 				{
-					if (pauseBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					if (buttonManager.getPauseBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						pauseSimulation = !pauseSimulation;
-						buttonManager.UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+						buttonManager.UpdatePauseBtn(pauseSimulation);
 					}
-					else if (pauseSimulation == true && stepBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					else if (pauseSimulation == true && buttonManager.getStepBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						step = true;
 						pauseSimulation = false;
 					}
-					else if (restartBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					else if (buttonManager.getRestartBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						generationElapsed = 0;
 						step = clearBoard;
 						pauseSimulation = clearBoard;
-						generationLabel.setString("Generations:\n" + std::to_string(generationElapsed));
-						buttonManager.UpdatePauseBtn(pauseBtn, pauseLabel, pauseSimulation, WIDTH * CELL_SIZE);
+						buttonManager.UpdateGenerationLabel(generationElapsed);
+						buttonManager.UpdatePauseBtn(pauseSimulation);
 
 						cellManager = CellManager(WIDTH, LENGTH, clearBoard ? CellStateEnum::Dead : CellStateEnum::NONE);
 						cellMap = cellManager.getCellDict();
 					}
-					else if (clearCheckboxBtn.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					else if (buttonManager.getClearCheckboxBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
 						clearBoard = !clearBoard;
-						std::string result = clearBoard ? "True" : "False";
-						clearCheckboxLabel.setString("Clear:\n" + result);
+						buttonManager.UpdateCheckboxLabel(clearBoard);
 					}
 				}
 			}
@@ -231,28 +206,28 @@ int main()
 		if (pauseSimulation == false)
 		{
 			generationElapsed += 1;
-			generationLabel.setString("Generations:\n" + std::to_string(generationElapsed));
+			buttonManager.UpdateGenerationLabel(generationElapsed);
 
 			// Cell state logic.
 			cellManager.UpdateCells();
 		}
 		else
 		{
-			window.draw(stepBtn);
-			window.draw(stepLabel);
+			window.draw(buttonManager.getStepBtn());
+			window.draw(buttonManager.getStepLabel());
 		}
 
 		// Cell draw logic.
 		window.draw(GetCellsForDraw(&vertexArray, &cellMap));
 
 		// Draw UI.
-		window.draw(pauseBtn);
-		window.draw(pauseLabel);
-		window.draw(restartBtn);
-		window.draw(restartLabel);
-		window.draw(clearCheckboxBtn);
-		window.draw(clearCheckboxLabel);
-		window.draw(generationLabel);
+		window.draw(buttonManager.getPauseBtn());
+		window.draw(buttonManager.getPauseLabel());
+		window.draw(buttonManager.getRestartBtn());
+		window.draw(buttonManager.getRestartLabel());
+		window.draw(buttonManager.getClearCheckboxBtn());
+		window.draw(buttonManager.getClearCheckboxLabel());
+		window.draw(buttonManager.getGenerationLabel());
 
 		// FPS.
 		fpsHandler.Update();

@@ -5,17 +5,48 @@ class ButtonManager
 {
 public:
 	ButtonManager(const int width, const int cellSize);
-	void SetupPauseButton(sf::RectangleShape& btn, sf::Text& label);
-	void SetupStepButton(sf::RectangleShape& btn, sf::Text& label);
-	void SetupRestartButton(sf::RectangleShape& btn, sf::Text& label);
-	void SetupClearButton(sf::RectangleShape& btn, sf::Text& label);
-	void SetupGenerationLabel(sf::Text& label);
 
-	void UpdatePauseBtn(sf::RectangleShape& btn, sf::Text& label, const bool isSimulationPaused, const int offset);
+	void UpdatePauseBtn(const bool isSimulationPaused);
+	void UpdateCheckboxLabel(const bool clearBoard);
+	void UpdateGenerationLabel(const int generationElapsed);
+
+	sf::RectangleShape getPauseBtn() const;
+	sf::Text getPauseLabel() const;
+
+	sf::RectangleShape getStepBtn() const;
+	sf::Text getStepLabel() const;
+
+	sf::RectangleShape getRestartBtn() const;
+	sf::Text getRestartLabel() const;
+
+	sf::RectangleShape getClearCheckboxBtn() const;
+	sf::Text getClearCheckboxLabel() const;
+
+	sf::Text getGenerationLabel() const;
 
 private:
 	sf::Font font;
 
 	float width;
 	float cellSize;
+
+	sf::RectangleShape pauseBtn;
+	sf::Text pauseLabel;
+
+	sf::RectangleShape stepBtn;
+	sf::Text stepLabel;
+
+	sf::RectangleShape restartBtn;
+	sf::Text restartLabel;
+
+	sf::RectangleShape clearCheckboxBtn;
+	sf::Text clearCheckboxLabel;
+
+	sf::Text generationLabel;
+
+	void SetupPauseButton();
+	void SetupStepButton();
+	void SetupRestartButton();
+	void SetupClearButton();
+	void SetupGenerationLabel();
 };
