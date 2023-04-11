@@ -1,134 +1,23 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <math.h>
 
-#include "Cell.h"
-#include "CellManager.h"
-#include "Internal/FPS.h"
+#include "SimulationManager.h"
 #include "ButtonManager.h"
-
-void SetupCellShapes(sf::VertexArray& vertexArray, std::map<Vector2, Cell*> const* cellMap, const int cellSize)
-{
-	// Create colors.
-	const sf::Color BORDER_COLOR(20, 20, 20);
-	const sf::Color CELL_COLOR(230, 230, 230);
-
-	// Calculate border size.
-	const int BORDER_SIZE = roundf(cellSize * 0.1f);
-
-	// Setup the vertex buffer for drawing all the cells.
-	vertexArray = sf::VertexArray(sf::Quads, cellMap->size() * 8);
-
-	int i = 0;
-	sf::Vector2f point;
-	for (auto it = cellMap->begin(); it != cellMap->end(); ++it)
-	{
-		// ------------ Draw Cell's Border ------------
-		// Top left point.
-		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize);
-		vertexArray[i].position = point;
-
-		// Top right point.
-		point = sf::Vector2f(it->first.X * cellSize + cellSize, it->first.Y * cellSize);
-		vertexArray[i + 1].position = point;
-
-		// Bottom right point.
-		point = sf::Vector2f(it->first.X * cellSize + cellSize, it->first.Y * cellSize + cellSize);
-		vertexArray[i + 2].position = point;
-
-		// Bottom left point.
-		point = sf::Vector2f(it->first.X * cellSize, it->first.Y * cellSize + cellSize);
-		vertexArray[i + 3].position = point;
-
-		// ------------ Draw Cell ------------
-		point = sf::Vector2f(it->first.X * cellSize + BORDER_SIZE, it->first.Y * cellSize + BORDER_SIZE);
-		vertexArray[i + 4].position = point;
-
-		// Top right point.
-		point = sf::Vector2f(it->first.X * cellSize + cellSize - BORDER_SIZE, it->first.Y * cellSize + BORDER_SIZE);
-		vertexArray[i + 5].position = point;
-
-		// Bottom right point.
-		point = sf::Vector2f(it->first.X * cellSize + cellSize - BORDER_SIZE, it->first.Y * cellSize + cellSize - BORDER_SIZE);
-		vertexArray[i + 6].position = point;
-
-		// Bottom left point.
-		point = sf::Vector2f(it->first.X * cellSize + BORDER_SIZE, it->first.Y * cellSize + cellSize - BORDER_SIZE);
-		vertexArray[i + 7].position = point;
-
-		// Color the first 4 cells black, and the remaining 4 cells white.
-		for (int j = i; j < i + 8; j++)
-		{
-			vertexArray[j].color = j < i + 4 ? BORDER_COLOR : CELL_COLOR;
-		}
-
-		i += 8;
-	}
-}
-
-sf::VertexArray GetCellsForDraw(sf::VertexArray const* vertexArray, std::map<Vector2, Cell*> const* cellMap)
-{
-	// Setup the vertex buffer for drawing all the alive cells.
-	sf::VertexArray aliveVertexArray(sf::Quads);
-
-	int vertexPoint = 0;
-	for (const auto& data : *cellMap)
-	{
-		if (data.second->getCellState() == CellStateEnum::Alive)
-		{
-			for (int i = 0; i < 8; i++)
-			{
-				aliveVertexArray.append((*vertexArray)[vertexPoint + i]);
-			}
-		}
-
-		vertexPoint += 8;
-	}
-
-	return aliveVertexArray;
-}
+#include "Internal/FPS.h"
 
 int main()
 {
-	// Set const variables.
-	const int WIDTH = 100;
-	const int LENGTH = 100;
-	const int CELL_SIZE = 10;
-	const int UI_SPACE = 200;
-	const sf::Color BG_COLOR(150, 150, 150);
-
-	bool step = false;
-	bool clearBoard = false;
-	bool pauseSimulation = false;
-	int generationElapsed = 0;
-
-	// Create CellManager.
-	auto cellManager = CellManager(WIDTH, LENGTH, CellStateEnum::NONE);
-
-	// Get cell dictionary.
-	std::map<Vector2, Cell*> cellMap = cellManager.getCellDict();
-	if (cellMap.empty())
-	{
-		std::cout << "No cells found!";
-		return -1;
-	}
-
-	// Setup vertex buffer.
-	sf::VertexArray vertexArray;
-	SetupCellShapes(vertexArray, &cellMap, CELL_SIZE);
-
-	// Cell Background rect.
-	sf::RectangleShape cellBackground(sf::Vector2f(WIDTH * CELL_SIZE, LENGTH * CELL_SIZE));
-	cellBackground.setFillColor(BG_COLOR);
+	SimulationManager simulationManager;
+	ButtonManager buttonManager(simulationManager.getWidth(), simulationManager.getCellSize());
 
 	// Setup clock for FPS.
 	FPS fpsHandler;
-	fpsHandler.SetFpsTextPosition(WIDTH * CELL_SIZE + 60, 10);
-
-	ButtonManager buttonManager(WIDTH, CELL_SIZE);
+	fpsHandler.SetFpsTextPosition(simulationManager.getTotalWidth() + 60, 10);
 
 	// Create window.
-	sf::RenderWindow window(sf::VideoMode(WIDTH * CELL_SIZE + UI_SPACE, LENGTH * CELL_SIZE), "Conway's Game of Life", sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(simulationManager.getTotalWidth() + simulationManager.getUiSpace(),
+							simulationManager.getTotalLength()),
+							"Conway's Game of Life", sf::Style::Close);
 	window.setFramerateLimit(60);
 	window.hasFocus();
 
@@ -146,52 +35,36 @@ int main()
 					 event.mouseButton.button == sf::Mouse::Left)
 			{
 				// Cell area logic.
-				if (event.mouseButton.x < WIDTH * CELL_SIZE)
+				if (event.mouseButton.x < simulationManager.getTotalWidth())
 				{
-					int xPos = event.mouseButton.x / CELL_SIZE;
-					int yPos = event.mouseButton.y / CELL_SIZE;
+					int xPos = event.mouseButton.x / simulationManager.getCellSize();
+					int yPos = event.mouseButton.y / simulationManager.getCellSize();
 					Vector2 cellPos(xPos, yPos);
 
-					if (cellMap.count(cellPos))
-					{
-						if (cellMap[cellPos]->getCellState() == CellStateEnum::Alive)
-						{
-							cellMap[cellPos]->setCellState(CellStateEnum::Dead);
-						}
-						else
-						{
-							cellMap[cellPos]->setCellState(CellStateEnum::Alive);
-						}
-					}
+					simulationManager.ToggleCellState(cellPos);
 				}
 				// UI logic.
 				else
 				{
 					if (buttonManager.getPauseBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
-						pauseSimulation = !pauseSimulation;
-						buttonManager.UpdatePauseBtn(pauseSimulation);
+						simulationManager.TogglePause();
+						buttonManager.UpdatePauseBtn(simulationManager.getPauseSimulation());
 					}
-					else if (pauseSimulation == true && buttonManager.getStepBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+					else if (simulationManager.getPauseSimulation() && buttonManager.getStepBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
-						step = true;
-						pauseSimulation = false;
+						simulationManager.PerformStep();
 					}
 					else if (buttonManager.getRestartBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
-						generationElapsed = 0;
-						step = clearBoard;
-						pauseSimulation = clearBoard;
-						buttonManager.UpdateGenerationLabel(generationElapsed);
-						buttonManager.UpdatePauseBtn(pauseSimulation);
-
-						cellManager = CellManager(WIDTH, LENGTH, clearBoard ? CellStateEnum::Dead : CellStateEnum::NONE);
-						cellMap = cellManager.getCellDict();
+						simulationManager.OnRestart();
+						buttonManager.UpdateGenerationLabel(simulationManager.getGenerationsElapsed());
+						buttonManager.UpdatePauseBtn(simulationManager.getPauseSimulation());
 					}
 					else if (buttonManager.getClearCheckboxBtn().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
 					{
-						clearBoard = !clearBoard;
-						buttonManager.UpdateCheckboxLabel(clearBoard);
+						simulationManager.ToggleClearBoard();
+						buttonManager.UpdateCheckboxLabel(simulationManager.getClearBoard());
 					}
 				}
 			}
@@ -201,15 +74,13 @@ int main()
 		window.clear(sf::Color::Black);
 
 		// Draw cell BG.
-		window.draw(cellBackground);
+		window.draw(simulationManager.getCellBg());
 
-		if (pauseSimulation == false)
+		if (simulationManager.getPauseSimulation() == false)
 		{
-			generationElapsed += 1;
-			buttonManager.UpdateGenerationLabel(generationElapsed);
-
 			// Cell state logic.
-			cellManager.UpdateCells();
+			simulationManager.UpdateCells();
+			buttonManager.UpdateGenerationLabel(simulationManager.getGenerationsElapsed());
 		}
 		else
 		{
@@ -218,7 +89,7 @@ int main()
 		}
 
 		// Cell draw logic.
-		window.draw(GetCellsForDraw(&vertexArray, &cellMap));
+		window.draw(simulationManager.GetCellsForDraw());
 
 		// Draw UI.
 		window.draw(buttonManager.getPauseBtn());
@@ -236,11 +107,7 @@ int main()
 		// End the current frame.
 		window.display();
 
-		if (step == true)
-		{
-			step = false;
-			pauseSimulation = true;
-		}
+		simulationManager.OnStepTrue();
 	}
 
 	return 0;

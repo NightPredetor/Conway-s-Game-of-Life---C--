@@ -145,6 +145,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\SimulationManager.cpp" />
     <ClCompile Include="src\ButtonManager.cpp" />
     <ClCompile Include="src\CellManager.cpp" />
     <ClCompile Include="src\Cell.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="include\Internal\FPS.h" />
     <ClInclude Include="include\Internal\Grid.h" />
     <ClInclude Include="include\Internal\Vector2.h" />
+    <ClInclude Include="include\SimulationManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Resources\Font\arial.ttf" />
